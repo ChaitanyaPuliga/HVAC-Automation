@@ -1,0 +1,921 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoolFlow HVAC | Lead Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #152238;
+      --muted: #6b7890;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --green: #15803d;
+      --red: #b91c1c;
+      --orange: #c2410c;
+      --shadow: 0 5px 24px rgba(25, 45, 80, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button, input, select { font: inherit; }
+
+    .topbar {
+      background: #102544;
+      color: white;
+      padding: 20px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand span { color: #60a5fa; }
+
+    .subtitle {
+      color: #c4d4ea;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-light {
+      background: white;
+      color: #17345b;
+    }
+
+    main {
+      max-width: 1500px;
+      padding: 26px;
+      margin: auto;
+    }
+
+    .connection {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .dot.online { background: #22c55e; }
+    .dot.offline { background: #ef4444; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric, .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric { padding: 20px; }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .metric-value {
+      font-size: 31px;
+      font-weight: 800;
+      margin-top: 12px;
+      letter-spacing: -1px;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .panel { overflow: hidden; }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .panel-description {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .control {
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid #d5deea;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+      max-width: 100%;
+    }
+
+    .search { min-width: 210px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 1150px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 13px 15px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #66758c;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 15px;
+      font-size: 13px;
+      vertical-align: top;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    tbody tr:hover { background: #fafcff; }
+
+    .customer-name {
+      font-weight: 750;
+      margin-bottom: 5px;
+    }
+
+    .secondary {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .lead-id {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .score {
+      display: inline-block;
+      background: var(--primary-light);
+      color: #1d4ed8;
+      padding: 5px 8px;
+      border-radius: 7px;
+      font-weight: 800;
+    }
+
+    .description {
+      max-width: 220px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .status-select {
+      min-width: 145px;
+      width: 100%;
+      font-size: 12px;
+      padding: 8px;
+      border: 1px solid #d6deeb;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .status-select:disabled {
+      background: #f3f4f6;
+      opacity: 0.75;
+    }
+
+    .row-message {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 17px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .notice {
+      padding: 12px 15px;
+      border-radius: 9px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.error {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .notice.success {
+      display: block;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .settings {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      background: #fbfcfe;
+    }
+
+    .settings label {
+      display: block;
+      font-size: 12px;
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+
+    .endpoint-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .endpoint-row input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-help {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 9px;
+    }
+
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { padding: 16px; }
+      .topbar { padding: 18px; }
+    }
+
+    @media (max-width: 480px) {
+      .metrics { grid-template-columns: 1fr 1fr; gap: 9px; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 25px; }
+      .search { min-width: 100%; }
+      .endpoint-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">CoolFlow <span>HVAC</span></div>
+      <div class="subtitle">Lead management dashboard</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-light" id="settingsButton">Settings</button>
+      <button class="btn btn-primary" id="refreshButton">Refresh leads</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="connection">
+      <div class="connection-status">
+        <span class="dot" id="connectionDot"></span>
+        <span id="connectionText">Connecting to Google Sheets...</span>
+      </div>
+      <div id="lastUpdated">Not yet updated</div>
+    </div>
+
+    <div class="notice" id="notice" role="status"></div>
+
+    <section class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total leads</div>
+        <div class="metric-value" id="totalLeads">—</div>
+        <div class="metric-note">All recorded requests</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">New leads</div>
+        <div class="metric-value" id="newLeads">—</div>
+        <div class="metric-note">Awaiting initial action</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">High / urgent</div>
+        <div class="metric-value" id="urgentLeads">—</div>
+        <div class="metric-note">Priority requests</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Booked</div>
+        <div class="metric-value" id="bookedLeads">—</div>
+        <div class="metric-note">Booking status confirmed</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Customer leads</div>
+          <div class="panel-description">
+            Changes to editable dropdowns are saved to Google Sheets.
+          </div>
+        </div>
+        <div class="filters">
+          <input class="control search" id="searchInput"
+            placeholder="Search name, email, phone or ID">
+          <select class="control" id="statusFilter">
+            <option value="">All statuses</option>
+          </select>
+          <select class="control" id="urgencyFilter">
+            <option value="">All urgency levels</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Lead / Created</th>
+              <th>Customer</th>
+              <th>Service</th>
+              <th>Request</th>
+              <th>Score</th>
+              <th>Urgency</th>
+              <th>Status</th>
+              <th>Booking</th>
+              <th>Suggested action</th>
+            </tr>
+          </thead>
+          <tbody id="leadsBody">
+            <tr><td colspan="9" class="empty">Loading leads...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer">
+        <span id="resultCount">0 leads</span>
+        <span>Auto-refresh every 10 seconds</span>
+      </div>
+
+      <div class="settings" id="settingsPanel" hidden>
+        <label for="endpointInput">Google Apps Script Web App URL</label>
+        <div class="endpoint-row">
+          <input class="control" id="endpointInput"
+            placeholder="https://script.google.com/macros/s/.../exec">
+          <button class="btn btn-primary" id="saveEndpointButton">
+            Save URL
+          </button>
+        </div>
+        <div class="settings-help">
+          Paste the deployed Apps Script URL ending in /exec. This dashboard
+          connects directly to Google Sheets; it does not call n8n.
+          Use fictional demo records with this public demo configuration.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const REFRESH_INTERVAL_MS = 10000;
+    const EDITABLE_FIELDS = ["urgency", "status", "booking_status"];
+
+    let leads = [];
+    let options = {};
+    let endpoint = "";
+    let isLoading = false;
+    let lastSuccessfulLoad = 0;
+    let activeUpdates = 0;
+    let refreshTimer = null;
+
+    const $ = id => document.getElementById(id);
+
+    function setNotice(message, type) {
+      const notice = $("notice");
+      notice.textContent = message;
+      notice.className = "notice " + (type || "error");
+    }
+
+    function clearNotice() {
+      $("notice").textContent = "";
+      $("notice").className = "notice";
+    }
+
+    function setConnection(online, message) {
+      $("connectionDot").className =
+        "dot " + (online ? "online" : "offline");
+      $("connectionText").textContent = message;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return date.toLocaleString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function normalise(value) {
+      return String(value ?? "").trim().toLowerCase();
+    }
+
+    function isBooked(lead) {
+      return normalise(lead.booking_status) === "confirmed" ||
+        normalise(lead.status) === "booked";
+    }
+
+    function updateMetrics() {
+      $("totalLeads").textContent = leads.length;
+
+      $("newLeads").textContent = leads.filter(
+        lead => normalise(lead.status) === "new"
+      ).length;
+
+      $("urgentLeads").textContent = leads.filter(
+        lead => ["high", "urgent"].includes(normalise(lead.urgency))
+      ).length;
+
+      $("bookedLeads").textContent =
+        leads.filter(isBooked).length;
+    }
+
+    function populateFilter(selectId, field, defaultLabel) {
+      const select = $(selectId);
+      const previousValue = select.value;
+      const values = options[field] || [];
+
+      select.innerHTML =
+        '<option value="">' + escapeHTML(defaultLabel) + '</option>' +
+        values.map(value =>
+          '<option value="' + escapeHTML(value) + '">' +
+          escapeHTML(value) + '</option>'
+        ).join("");
+
+      if (values.includes(previousValue)) {
+        select.value = previousValue;
+      }
+    }
+
+    function makeDropdown(lead, field) {
+      const currentValue = String(lead[field] ?? "");
+      const configuredValues = options[field] || [];
+
+      // Include the current value if the sheet has a legacy value
+      // that is no longer included in its current validation choices.
+      const values = [...configuredValues];
+
+      if (currentValue && !values.includes(currentValue)) {
+        values.push(currentValue);
+      }
+
+      const choices = values.map(value =>
+        '<option value="' + escapeHTML(value) + '"' +
+        (value === currentValue ? " selected" : "") +
+        ">" + escapeHTML(value) + "</option>"
+      ).join("");
+
+      return '<select class="status-select" data-field="' +
+        escapeHTML(field) + '" data-lead-id="' +
+        escapeHTML(lead.lead_id) + '">' +
+        choices +
+        "</select>";
+    }
+
+    function getFilteredLeads() {
+      const query = normalise($("searchInput").value);
+      const status = $("statusFilter").value;
+      const urgency = $("urgencyFilter").value;
+
+      return leads.filter(lead => {
+        const searchable = [
+          lead.lead_id,
+          lead.customer_name,
+          lead.phone,
+          lead.email,
+          lead.service_type,
+          lead.description
+        ].map(normalise).join(" ");
+
+        return (!query || searchable.includes(query)) &&
+          (!status || String(lead.status ?? "") === status) &&
+          (!urgency || String(lead.urgency ?? "") === urgency);
+      });
+    }
+
+    function renderLeads() {
+      updateMetrics();
+
+      const filtered = getFilteredLeads();
+      $("resultCount").textContent =
+        filtered.length + " of " + leads.length + " leads";
+
+      if (!filtered.length) {
+        $("leadsBody").innerHTML =
+          '<tr><td colspan="9" class="empty">' +
+          (leads.length ? "No leads match your filters." :
+            "No leads found in the sheet.") +
+          "</td></tr>";
+        return;
+      }
+
+      $("leadsBody").innerHTML = filtered.map(lead => `
+        <tr>
+          <td>
+            <div class="lead-id">${escapeHTML(lead.lead_id || "—")}</div>
+            <div class="secondary">${escapeHTML(formatDate(lead.created_at))}</div>
+          </td>
+          <td>
+            <div class="customer-name">${escapeHTML(lead.customer_name || "Unknown")}</div>
+            <div class="secondary">${escapeHTML(lead.phone || "")}</div>
+            <div class="secondary">${escapeHTML(lead.email || "")}</div>
+          </td>
+          <td>${escapeHTML(lead.service_type || "—")}</td>
+          <td>
+            <div class="description">${escapeHTML(lead.description || "—")}</div>
+            ${lead.ai_summary
+              ? '<div class="secondary" style="margin-top:6px">' +
+                escapeHTML(lead.ai_summary) + '</div>'
+              : ""}
+          </td>
+          <td><span class="score">${escapeHTML(lead.lead_score ?? "—")}</span></td>
+          <td>${makeDropdown(lead, "urgency")}</td>
+          <td>${makeDropdown(lead, "status")}</td>
+          <td>${makeDropdown(lead, "booking_status")}</td>
+          <td><div class="description">${escapeHTML(lead.suggested_action || "—")}</div></td>
+        </tr>
+      `).join("");
+    }
+
+    // JSONP avoids the browser CORS problem for read-only requests.
+    function loadGoogleSheetData(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "hvacCallback_" +
+          Date.now() + "_" + Math.floor(Math.random() * 1000000);
+
+        const script = document.createElement("script");
+        let finished = false;
+
+        const timeout = setTimeout(() => {
+          finish();
+          reject(new Error("Timed out reading Google Sheets. Check the deployment URL."));
+        }, 20000);
+
+        function finish() {
+          if (finished) return;
+          finished = true;
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = data => {
+          finish();
+
+          if (!data || data.success !== true) {
+            reject(new Error(data?.error || "Apps Script returned an error"));
+            return;
+          }
+
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          finish();
+          reject(new Error(
+            "Could not load the Apps Script response. Check the /exec URL and deployment access."
+          ));
+        };
+
+        const separator = url.includes("?") ? "&" : "?";
+        script.src = url + separator +
+          "action=list&prefix=" + encodeURIComponent(callbackName) +
+          "&_=" + Date.now();
+
+        document.head.appendChild(script);
+      });
+    }
+
+    async function refreshLeads(showError) {
+      if (isLoading) return;
+      if (!endpoint) {
+        setConnection(false, "Add your Apps Script URL in Settings");
+        if (showError) {
+          setNotice("Paste your deployed Google Apps Script URL ending in /exec.", "error");
+        }
+        return;
+      }
+
+      isLoading = true;
+
+      try {
+        const data = await loadGoogleSheetData(endpoint);
+        leads = Array.isArray(data.leads) ? data.leads : [];
+        options = data.options || {};
+
+        populateFilter("statusFilter", "status", "All statuses");
+        populateFilter("urgencyFilter", "urgency", "All urgency levels");
+
+        renderLeads();
+
+        lastSuccessfulLoad = Date.now();
+        $("lastUpdated").textContent =
+          "Last updated " + new Date(lastSuccessfulLoad).toLocaleTimeString();
+
+        setConnection(true, "Connected to Google Sheets");
+        clearNotice();
+
+      } catch (error) {
+        setConnection(false, "Could not load Google Sheets data");
+        if (showError || !lastSuccessfulLoad) {
+          setNotice(
+            error.message + " If the endpoint works in a tab, check that the latest Apps Script version was deployed.",
+            "error"
+          );
+        }
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // POST uses no-cors because Apps Script's response does not expose
+    // the normal cross-origin JSON response to this standalone page.
+    // We verify the write by reading the sheet again.
+    async function updateLead(leadId, field, value, select) {
+      if (!EDITABLE_FIELDS.includes(field)) {
+        setNotice("This field cannot be edited.", "error");
+        return;
+      }
+
+      const lead = leads.find(item =>
+        String(item.lead_id) === String(leadId)
+      );
+
+      if (!lead) {
+        setNotice("Could not find this lead. Refresh the dashboard.", "error");
+        return;
+      }
+
+      const oldValue = String(lead[field] ?? "");
+      if (oldValue === value) return;
+
+      if (!endpoint) {
+        setNotice("Configure the Apps Script URL first.", "error");
+        renderLeads();
+        return;
+      }
+
+      select.disabled = true;
+      activeUpdates++;
+      clearNotice();
+
+      try {
+        await fetch(endpoint, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            action: "update",
+            lead_id: leadId,
+            field: field,
+            value: value
+          })
+        });
+
+        // Allow the Apps Script write to finish before verifying it.
+        await new Promise(resolve => setTimeout(resolve, 1800));
+
+        const data = await loadGoogleSheetData(endpoint);
+        const updatedLead = (data.leads || []).find(item =>
+          String(item.lead_id) === String(leadId)
+        );
+
+        options = data.options || options;
+
+        if (
+          updatedLead &&
+          String(updatedLead[field] ?? "") === value
+        ) {
+          leads = data.leads;
+          populateFilter("statusFilter", "status", "All statuses");
+          populateFilter("urgencyFilter", "urgency", "All urgency levels");
+          renderLeads();
+          setConnection(true, "Connected to Google Sheets");
+          setNotice("Update verified in Google Sheets.", "success");
+        } else {
+          leads = data.leads || leads;
+          renderLeads();
+          setNotice(
+            "The selected value was not confirmed in the sheet. Check the dropdown validation and Apps Script deployment.",
+            "error"
+          );
+        }
+
+        lastSuccessfulLoad = Date.now();
+        $("lastUpdated").textContent =
+          "Last updated " + new Date(lastSuccessfulLoad).toLocaleTimeString();
+
+      } catch (error) {
+        setNotice(
+          "Could not verify the update: " + error.message +
+          ". Refresh the dashboard and check the sheet.",
+          "error"
+        );
+        await refreshLeads(false);
+      } finally {
+        activeUpdates--;
+        renderLeads();
+      }
+    }
+
+    $("leadsBody").addEventListener("change", event => {
+      const select = event.target.closest("select[data-field]");
+      if (!select) return;
+
+      updateLead(
+        select.dataset.leadId,
+        select.dataset.field,
+        select.value,
+        select
+      );
+    });
+
+    $("searchInput").addEventListener("input", renderLeads);
+    $("statusFilter").addEventListener("change", renderLeads);
+    $("urgencyFilter").addEventListener("change", renderLeads);
+
+    $("refreshButton").addEventListener("click", () => {
+      refreshLeads(true);
+    });
+
+    $("settingsButton").addEventListener("click", () => {
+      const panel = $("settingsPanel");
+      panel.hidden = !panel.hidden;
+
+      if (!panel.hidden) {
+        $("endpointInput").value = endpoint;
+      }
+    });
+
+    $("saveEndpointButton").addEventListener("click", () => {
+      const url = $("endpointInput").value.trim();
+
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)) {
+        setNotice(
+          "Enter the deployed Apps Script web app URL ending in /exec.",
+          "error"
+        );
+        return;
+      }
+
+      endpoint = url;
+
+      // Remember the endpoint in this browser only.
+      try {
+        localStorage.setItem("coolflowAppsScriptEndpoint", endpoint);
+      } catch (_) {}
+
+      clearNotice();
+      refreshLeads(true);
+    });
+
+    function startDashboard() {
+      try {
+        endpoint = localStorage.getItem("coolflowAppsScriptEndpoint") || "";
+      } catch (_) {
+        endpoint = "";
+      }
+
+      $("endpointInput").value = endpoint;
+
+      if (!endpoint) {
+        $("settingsPanel").hidden = false;
+        setConnection(false, "Add your Apps Script URL in Settings");
+        $("leadsBody").innerHTML =
+          '<tr><td colspan="9" class="empty">' +
+          'Add your Apps Script URL using Settings to load leads.' +
+          '</td></tr>';
+      } else {
+        refreshLeads(true);
+      }
+
+      // Auto-refresh disabled; use the Refresh leads button.
+    }
+
+    startDashboard();
+  </script>
+</body>
+</html>
